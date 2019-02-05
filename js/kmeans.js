@@ -9,7 +9,6 @@ function kmeans(data, k) {
     //Crap we need
     var iterations = 0;
     var maxLoops = 5;
-    var iterations = 0;
     var qualityChange = 0;
     var oldqualitycheck = 0; 
     var qualitycheck = 0;
@@ -56,9 +55,22 @@ function kmeans(data, k) {
  * @param {*} data 
  * @return {array}
  */
-function parseData(data){
+function parseData(data) {
 
     var array = [];
+
+    for (var i = 0; i < data.length; i++) {
+        var obj = data[i];
+
+        var newArr = [
+            parseFloat(obj.A),
+            parseFloat(obj.B),
+            parseFloat(obj.C)
+        ]
+        
+        array.push(newArr);
+    }
+    console.log(array);
 
     return array;
 }
@@ -70,11 +82,20 @@ function parseData(data){
  * @return {array} centroid 
  */
 
-function initCentroids(data, k){
+function initCentroids(data, k) {
+
+    var centroids = [];
+    for (var i = 0; i < k; i++) {
+
+        var random = Math.floor(Math.random() * data.length);
+
+        centroids.push(data[random]);
+    }
     
     //Create k centroids
+    console.log(centroids);
     
-    return centroid;
+    return centroids;
 }
 
 /**
@@ -85,7 +106,13 @@ function initCentroids(data, k){
 * @param means
 * @return {Array}
 */
-function assignPointsToMeans(points, means){
+function assignPointsToMeans(points, means) {
+    var assignments = [];
+
+    for (var i = 0; i < points.length; i++) {
+        
+        assignments.push(findClosestMeanIndex(points[i], means));
+    }
     
     return assignments;
 };
@@ -97,7 +124,14 @@ function assignPointsToMeans(points, means){
  * @param means
  * @return {Number}
 */
-function findClosestMeanIndex(point, means){
+function findClosestMeanIndex(point, means) {
+
+    var distances = [];
+
+    for (var i = 0; i < means.length; i++) {
+        distances.push(euclideanDistance(point, means[i]));
+    }
+
     
     return findIndexOfMinimum(distances);
 };
@@ -113,6 +147,8 @@ function euclideanDistance(point1, point2){
     if (point1.length != point2.length)
         throw ("point1 and point2 must be of same dimension");
 
+    var sum = Math.sqrt(Math.pow(point1[0] - point2[0], 2.0) + Math.pow(point1[1] - point2[1], 2.0) + Math.pow(point1[2] - point2[2], 2.0));
+
     return sum;
 
 };
@@ -126,7 +162,17 @@ function euclideanDistance(point1, point2){
 function findIndexOfMinimum(array){
 
     var index = 0;
-  
+    var min = array[0];
+
+    //index = array.findIndex(Math.min(...array));
+    
+    for (var i = 1; i < array.length; i++) {
+        if (min > array[i]) {
+            min = array[i];
+            index = i;
+        }
+    }
+    
     return index;
 };
 
@@ -147,6 +193,22 @@ function computeClusterMeans(points, assignments, k){
 
     // for each cluster
     var newMeans = [];
+
+
+
+    for (var i = 0; i < k; i++) {
+        var cluster = [];
+        for (var j = 0; j < points.length; j++) {
+            if (assignments[j] == i) {
+                cluster.push(points[j]);
+            }
+        }
+        newMeans.push(averagePosition(cluster));
+    }
+
+    console.log(newMeans);
+
+
 
     return newMeans;
 };
