@@ -11,7 +11,7 @@ function kmeans(data, k) {
     var maxLoops = 5;
     var qualityChange = 0;
     var oldqualitycheck = 0; 
-    var qualitycheck = 0;
+    var qualitycheck = 10000;
     var converge = false;
 
     //Parse the data from strings to floats
@@ -32,14 +32,26 @@ function kmeans(data, k) {
         centroid = computeClusterMeans(new_array, clusterIndexPerPoint, k);
         // assign each point to the closest mean.
         var clusterIndexPerPoint = assignPointsToMeans(new_array, centroid);
+
+        oldqualitycheck = qualitycheck;
         
         //Task 4.4 - Do a quality check for current result
-        qualitycheck = qualityCheck(centroid,new_array,clusterIndexPerPoint);
+        qualitycheck = qualityCheck(centroid, new_array, clusterIndexPerPoint);
+
+        qualityChange = oldqualitycheck - qualitycheck;
+
+        console.log(qualitycheck);
+        iterations += 1;
         
         //End the loop if...
+        if (qualityChange < 0.000000001) converge = true;
+
+       
 
     }
     while (converge == false)
+
+    console.log(iterations);
     //Return results 
     return {
         assignments: clusterIndexPerPoint
@@ -70,7 +82,6 @@ function parseData(data) {
         
         array.push(newArr);
     }
-    console.log(array);
 
     return array;
 }
@@ -221,7 +232,20 @@ function computeClusterMeans(points, assignments, k){
  * @param {*} new_array 
  * @param {*} clusterIndexPerPoint 
  */
-function qualityCheck(centroid, new_array, clusterIndexPerPoint){
+function qualityCheck(centroid, new_array, clusterIndexPerPoint) {
+
+    var qualitycheck = 0;
+
+    for (var i = 0; i < centroid.length; i++) {
+        for (var j = 0; j < new_array.length; j++) {
+            if (clusterIndexPerPoint[j] == i) {
+                qualitycheck += Math.pow(euclideanDistance(new_array[j], centroid[i]), 2.0);
+            }
+
+        }
+
+    }
+    
     return qualitycheck;
 }
 
